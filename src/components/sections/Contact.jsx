@@ -20,7 +20,6 @@ const RESPONSES = {
     "  I craft immersive web experiences that",
     "  live at the intersection of design & code.",
     "",
-    "> Navigating to #about...",
   ],
   "2": [
     "Loading skills.exe...",
@@ -31,7 +30,6 @@ const RESPONSES = {
     "  Laravel   ██████████░░░░  82%",
     "  MySQL     █████████░░░░░  70%",
     "",
-    "> Navigating to #skills...",
   ],
   "3": [
     "Loading journey.exe...",
@@ -43,7 +41,6 @@ const RESPONSES = {
     "  1+ years of professional experience",
     "  building production-grade applications.",
     "",
-    "> Navigating to #journey...",
   ],
   "4": [
     "Loading contact.exe...",
@@ -55,8 +52,64 @@ const RESPONSES = {
     "  Currently available for freelance",
     "  and full-time opportunities.",
     "",
-    "> Scrolling to #contact...",
   ],
+};
+
+const COMMANDS = {
+  '--getHelp': {
+    description: 'Display list of available commands',
+    execute: () => [
+      'Available commands:',
+      '',
+      '  --getHelp    Display this help message',
+      '  --clear      Clear the terminal',
+      '  --about      Show about information',
+      '  --skills     Show skills information',
+      '  --journey    Show journey information',
+      '  --contact    Show contact information',
+      '  --menu       Show menu options',
+      '',
+      'Type a command and press Enter.',
+    ],
+  },
+  '--clear': {
+    description: 'Clear the terminal',
+    execute: () => [],
+    special: 'clear',
+  },
+  '--about': {
+    description: 'Show about information',
+    execute: () => RESPONSES['1'],
+    navigate: 'about',
+  },
+  '--skills': {
+    description: 'Show skills information',
+    execute: () => RESPONSES['2'],
+    navigate: 'skills',
+  },
+  '--journey': {
+    description: 'Show journey information',
+    execute: () => RESPONSES['3'],
+    navigate: 'journey',
+  },
+  '--contact': {
+    description: 'Show contact information',
+    execute: () => RESPONSES['4'],
+    navigate: 'contact',
+  },
+  '--menu': {
+    description: 'Show menu options',
+    execute: () => [
+      'Menu options:',
+      '',
+      '  [1]  About Me  -- Who I am & what drives me',
+      '  [2]  Skills    -- Technologies I work with',
+      '  [3]  Journey   -- My experience & education',
+      '  [4]  Contact   -- Let\'s build something together',
+      '',
+      'Use --about, --skills, --journey, --contact to explore.',
+    ],
+  },
 };
 
 const BOOT_LINES = [
@@ -73,14 +126,7 @@ const BOOT_LINES = [
   "  |   Full-Stack Developer Portfolio          |",
   "  +------------------------------------------+",
   "",
-  "  Select an option to learn more:",
-  "",
-  "  [1]  About Me  -- Who I am & what drives me",
-  "  [2]  Skills    -- Technologies I work with",
-  "  [3]  Journey   -- My experience & education",
-  "  [4]  Contact   -- Let's build something together",
-  "",
-  "  Type a number and press Enter...",
+  "  Type --getHelp for available commands.",
   "",
 ];
 
@@ -93,6 +139,8 @@ export default function Contact() {
   const [input, setInput]           = useState("");
   const [booted, setBooted]         = useState(false);
   const [responding, setResponding] = useState(false);
+  const [history, setHistory]       = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
 
   /* Boot sequence */
   useEffect(() => {
@@ -137,9 +185,18 @@ export default function Contact() {
     ]);
     setResponding(true);
 
-    const response = RESPONSES[trimmed];
+    const command = COMMANDS[trimmed];
 
-    if (response) {
+    if (command) {
+      if (command.special === 'clear') {
+        setTimeout(() => {
+          setLines([]);
+          setResponding(false);
+        }, 200);
+        return;
+      }
+
+      const response = command.execute();
       let i = 0;
       const iv = setInterval(() => {
         if (i < response.length) {
@@ -151,14 +208,13 @@ export default function Contact() {
             setLines((prev) => [
               ...prev,
               { text: "", type: "system" },
-              { text: "  Type 1-4 to explore another section.", type: "system" },
+              { text: "  Type --getHelp for more commands.", type: "system" },
               { text: "", type: "system" },
             ]);
             setResponding(false);
-            const target = MENU_OPTIONS.find((o) => o.key === trimmed);
-            if (target) {
-              document.getElementById(target.anchor)?.scrollIntoView({ behavior: "smooth" });
-            }
+            // if (command.navigate) {
+            //   document.getElementById(command.navigate)?.scrollIntoView({ behavior: "smooth" });
+            // }
           }, 200);
         }
       }, 55);
@@ -166,7 +222,8 @@ export default function Contact() {
       setTimeout(() => {
         setLines((prev) => [
           ...prev,
-          { text: `  '${trimmed}' is not recognized. Type 1, 2, 3, or 4.`, type: "error" },
+          { text: `  '${trimmed}' is not recognized as an internal or external command.`, type: "error" },
+          { text: "  Type --getHelp for available commands.", type: "error" },
           { text: "", type: "system" },
         ]);
         setResponding(false);
@@ -178,14 +235,44 @@ export default function Contact() {
     if (e.key === "Enter") {
       e.preventDefault();
       const val = input;
+      if (val.trim()) {
+        setHistory((prev) => [...prev, val]);
+        setHistoryIndex(-1);
+      }
       setInput("");
       runCommand(val);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (history.length > 0) {
+        const newIndex = historyIndex === -1 ? history.length - 1 : Math.max(0, historyIndex - 1);
+        setHistoryIndex(newIndex);
+        setInput(history[newIndex]);
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (historyIndex >= 0) {
+        const newIndex = historyIndex + 1;
+        if (newIndex < history.length) {
+          setHistoryIndex(newIndex);
+          setInput(history[newIndex]);
+        } else {
+          setHistoryIndex(-1);
+          setInput("");
+        }
+      }
     }
   };
 
   const handlePillClick = (key) => {
     if (responding || !booted) return;
-    runCommand(key);
+    const commandMap = {
+      "1": "--about",
+      "2": "--skills",
+      "3": "--journey",
+      "4": "--contact",
+    };
+    const cmd = commandMap[key];
+    if (cmd) runCommand(cmd);
   };
 
   return (
@@ -393,7 +480,7 @@ export default function Contact() {
         </h2>
 
         <p className="contact-sub reveal">
-          Type a number in the terminal below to explore my portfolio.
+          Type a command in the terminal below to explore my portfolio.
         </p>
 
         {/* Quick-pick pills */}
@@ -443,7 +530,7 @@ export default function Contact() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={booted ? "type 1, 2, 3 or 4 and press Enter" : "booting..."}
+              placeholder={booted ? "type --getHelp for commands" : "booting..."}
               disabled={!booted || responding}
               autoComplete="off"
               autoCorrect="off"
