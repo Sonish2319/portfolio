@@ -1,460 +1,463 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const MENU_OPTIONS = [
-  { key: "1", label: "About",   anchor: "about"   },
-  { key: "2", label: "Skills",  anchor: "skills"  },
-  { key: "3", label: "Journey", anchor: "journey" },
-  { key: "4", label: "Contact", anchor: "contact" },
+const BOOT_LINES = [
+  "Last login: Today on ttys000",
+  "visitor@portfolio ~ %",
+  "Type 'help' to get started.",
+  "",
 ];
 
-const RESPONSES = {
-  "1": [
-    "Loading about.exe...",
-    "",
-    "  Name    : Sonish Upadhyaya",
-    "  Role    : Full-Stack Developer",
-    "  Stack   : Next.js · Django · Laravel",
-    "  Status  : Open to opportunities",
-    "",
-    "  I craft immersive web experiences that",
-    "  live at the intersection of design & code.",
-    "",
-    "> Navigating to #about...",
-  ],
-  "2": [
-    "Loading skills.exe...",
-    "",
-    "  React.js  ████████████░░  92%",
-    "  Next.js   ██████████░░░░  75%",
-    "  Django    ███████████░░░  88%",
-    "  Laravel   ██████████░░░░  82%",
-    "  MySQL     █████████░░░░░  70%",
-    "",
-    "> Navigating to #skills...",
-  ],
-  "3": [
-    "Loading journey.exe...",
-    "",
-    "  2024 → Present  Full-Stack Developer",
-    "  2022 → 2024     Backend Developer",
-    "  2021 → 2025     BSc. CSIT",
-    "",
-    "  1+ years of professional experience",
-    "  building production-grade applications.",
-    "",
-    "> Navigating to #journey...",
-  ],
-  "4": [
-    "Loading contact.exe...",
-    "",
-    "  Email   : sonish.com",
-    "  GitHub  : github.com/sonish",
-    "  LinkedIn: linkedin.com/sonish",
-    "",
-    "  Currently available for freelance",
-    "  and full-time opportunities.",
-    "",
-    "> Scrolling to #contact...",
-  ],
+/* ---------------- COMMAND REGISTRY ---------------- */
+
+const COMMANDS = {
+  help: {
+    description: "List available commands",
+    execute: ({ registry }) => [
+      "Available commands:",
+      "",
+      ...Object.entries(registry).map(
+        ([cmd, meta]) => `  ${cmd.padEnd(10)} ${meta.description}`
+      ),
+      "",
+    ],
+  },
+
+  clear: {
+    description: "Clear terminal",
+    special: "clear",
+  },
+
+  about: {
+    description: "About me",
+    execute: () => [
+      "Sonish Upadhyaya",
+      "Full-Stack Developer",
+      "",
+      "I build immersive web experiences",
+      "with modern technologies.",
+    ],
+  },
+
+  skills: {
+    description: "Tech stack",
+    execute: () => [
+      "React.js   ████████████░░",
+      "Next.js    ██████████░░░░",
+      "Django     ███████████░░░",
+      "Laravel    ██████████░░░░",
+      "",
+    ],
+  },
+
+  echo: {
+    description: "Print text",
+    execute: ({ args }) => [args.join(" ") || ""],
+  },
+
+  mailme: {
+  description: "Compose an email",
+  action: "mail",
+},
+
 };
 
-const BOOT_LINES = [
-  "Microsoft Windows [Version 10.0.22621.4317]",
-  "(c) Microsoft Corporation. All rights reserved.",
-  "",
-  "C:\\Users\\Visitor> whoami",
-  "  -> Guest exploring Sonish's portfolio",
-  "",
-  "C:\\Users\\Visitor> portfolio --menu",
-  "",
-  "  +------------------------------------------+",
-  "  |   SONISH.UPADHYAYA  v1.0.0               |",
-  "  |   Full-Stack Developer Portfolio          |",
-  "  +------------------------------------------+",
-  "",
-  "  Select an option to learn more:",
-  "",
-  "  [1]  About Me  -- Who I am & what drives me",
-  "  [2]  Skills    -- Technologies I work with",
-  "  [3]  Journey   -- My experience & education",
-  "  [4]  Contact   -- Let's build something together",
-  "",
-  "  Type a number and press Enter...",
-  "",
-];
+/* ---------------- PARSER ---------------- */
+
+const parseCommand = (input) => {
+  const tokens = input.trim().split(" ");
+  return {
+    commandName: tokens[0],
+    args: tokens.slice(1),
+  };
+};
 
 export default function Contact() {
-  const sectionRef  = useRef(null);
   const terminalRef = useRef(null);
-  const inputRef    = useRef(null);
+  const inputRef = useRef(null);
 
-  const [lines, setLines]           = useState([]);
-  const [input, setInput]           = useState("");
-  const [booted, setBooted]         = useState(false);
+  const [lines, setLines] = useState([]);
+  const [input, setInput] = useState("");
+  const [booted, setBooted] = useState(false);
   const [responding, setResponding] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
 
-  /* Boot sequence */
+  const [mode, setMode] = useState("normal"); 
+  const [mailData, setMailData] = useState({
+    from: "",
+    subject: "",
+    message: "",
+  });
+  const [mailStep, setMailStep] = useState(0);
+
+  /* ---------------- BOOT ---------------- */
   useEffect(() => {
     let i = 0;
     const iv = setInterval(() => {
       if (i < BOOT_LINES.length) {
-        const line = BOOT_LINES[i];
-        setLines((prev) => [...prev, { text: line, type: "system" }]);
+        setLines((prev) => [...prev, { text: BOOT_LINES[i], type: "system" }]);
         i++;
       } else {
         clearInterval(iv);
         setBooted(true);
       }
-    }, 50);
+    }, 60);
+
     return () => clearInterval(iv);
   }, []);
 
-  /* Auto-scroll */
+  /* ---------------- AUTO SCROLL ---------------- */
   useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
-    }
+    terminalRef.current?.scrollTo({
+      top: terminalRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [lines]);
 
-  /* Reveal observer */
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) e.target.classList.add("visible"); }),
-      { threshold: 0.1 }
-    );
-    sectionRef.current?.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+  /* ---------------- TYPE ANIMATION ---------------- */
+  const typeOutput = (output, callback) => {
+    let lineIndex = 0;
 
-  const runCommand = (val) => {
-    const trimmed = val.trim();
-    if (!trimmed || responding || !booted) return;
+    const typeLine = () => {
+      if (lineIndex >= output.length) {
+        callback?.();
+        return;
+      }
 
-    setLines((prev) => [
-      ...prev,
-      { text: `C:\\Users\\Visitor> ${trimmed}`, type: "input" },
-    ]);
-    setResponding(true);
+      let charIndex = 0;
+      const text = output[lineIndex];
 
-    const response = RESPONSES[trimmed];
+      setLines((prev) => [...prev, { text: "", type: "output" }]);
 
-    if (response) {
-      let i = 0;
-      const iv = setInterval(() => {
-        if (i < response.length) {
-          setLines((prev) => [...prev, { text: response[i], type: "output" }]);
-          i++;
-        } else {
-          clearInterval(iv);
-          setTimeout(() => {
-            setLines((prev) => [
-              ...prev,
-              { text: "", type: "system" },
-              { text: "  Type 1-4 to explore another section.", type: "system" },
-              { text: "", type: "system" },
-            ]);
-            setResponding(false);
-            const target = MENU_OPTIONS.find((o) => o.key === trimmed);
-            if (target) {
-              document.getElementById(target.anchor)?.scrollIntoView({ behavior: "smooth" });
-            }
-          }, 200);
+      const charInterval = setInterval(() => {
+        setLines((prev) => {
+          const updated = [...prev];
+          updated[updated.length - 1].text =
+            text.slice(0, charIndex + 1);
+          return updated;
+        });
+
+        charIndex++;
+
+        if (charIndex >= text.length) {
+          clearInterval(charInterval);
+          lineIndex++;
+          setTimeout(typeLine, 40);
         }
-      }, 55);
-    } else {
-      setTimeout(() => {
-        setLines((prev) => [
-          ...prev,
-          { text: `  '${trimmed}' is not recognized. Type 1, 2, 3, or 4.`, type: "error" },
-          { text: "", type: "system" },
-        ]);
-        setResponding(false);
-      }, 150);
-    }
+      }, 15);
+    };
+
+    typeLine();
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const val = input;
-      setInput("");
-      runCommand(val);
-    }
-  };
+  const sendEmail = async (data) => {
+  try {
+    console.log("Sending request to API...", data);
 
-  const handlePillClick = (key) => {
-    if (responding || !booted) return;
-    runCommand(key);
-  };
+    const res = await fetch("/api/send-mail", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+
+    console.log("API response:", result);
+
+    if (!result.success) {
+      throw new Error(result.error || "Failed");
+    }
+
+    return result;
+  } catch (err) {
+    console.error("SEND EMAIL ERROR:", err);
+    throw err;
+  }
+};
+
+  /* ---------------- RUN COMMAND ---------------- */
+const runCommand = (value) => {
+  const trimmed = value.trim();
+  if (!trimmed || responding || !booted) return;
+
+  // Always print input line
+  setLines((prev) => [
+    ...prev,
+    { text: `visitor@portfolio ~ % ${trimmed}`, type: "input" },
+  ]);
+
+  setResponding(true);
+
+  /* ---------------- MAIL MODE ---------------- */
+  if (mode === "mail") {
+    // Step 0 → Email
+    if (mailStep === 0) {
+      setMailData((prev) => ({ ...prev, from: trimmed }));
+      setMailStep(1);
+
+      return typeOutput(["Subject:"], () => setResponding(false));
+    }
+
+    // Step 1 → Subject
+    if (mailStep === 1) {
+      setMailData((prev) => ({ ...prev, subject: trimmed }));
+      setMailStep(2);
+
+      return typeOutput(["Message:"], () => setResponding(false));
+    }
+
+    // Step 2 → Message
+    if (mailStep === 2) {
+      setMailData((prev) => ({ ...prev, message: trimmed }));
+      setMailStep(3);
+
+      return typeOutput(
+        ["Type 'send' to send or 'cancel' to abort"],
+        () => setResponding(false)
+      );
+    }
+
+    // Step 3 → Send / Cancel
+    if (mailStep === 3) {
+if (trimmed.toLowerCase() === "send") {
+  (async () => {
+    try {
+      await sendEmail(mailData);
+
+      typeOutput(
+        ["Sending message...", "Message sent successfully 😎", ""],
+        () => {
+          setResponding(false);
+
+          // ✅ reset AFTER success
+          setMode("normal");
+          setMailStep(0);
+          setMailData({ from: "", subject: "", message: "" });
+        }
+      );
+    } catch (err) {
+      typeOutput(
+        ["Failed to send email 😞", ""],
+        () => setResponding(false)
+      );
+    }
+  })();
+
+  return;
+}
+
+      if (trimmed.toLowerCase() === "cancel") {
+        setMode("normal");
+        setMailStep(0);
+        setMailData({ from: "", subject: "", message: "" });
+
+        return typeOutput(
+          ["Email cancelled.", ""],
+          () => setResponding(false)
+        );
+      }
+
+      return typeOutput(
+        ["Type 'send' or 'cancel'"],
+        () => setResponding(false)
+      );
+    }
+  }
+
+  /* ---------------- NORMAL MODE ---------------- */
+
+  const { commandName, args } = parseCommand(trimmed);
+  const command = COMMANDS[commandName];
+
+  if (!command) {
+    return typeOutput(
+      [`zsh: command not found: ${commandName}`, ""],
+      () => setResponding(false)
+    );
+  }
+
+  // CLEAR
+  if (command.special === "clear") {
+    setTimeout(() => {
+      setLines([]);
+      setResponding(false);
+    }, 100);
+    return;
+  }
+
+  // MAIL COMMAND TRIGGER
+  if (command.action === "mail") {
+    setMode("mail");
+    setMailStep(0);
+
+    return typeOutput(["Your email:"], () => setResponding(false));
+  }
+
+  // NORMAL COMMAND EXECUTION
+  const output = command.execute
+    ? command.execute({ args, registry: COMMANDS })
+    : [];
+
+  typeOutput(output, () => {
+    setResponding(false);
+  });
+};
+
+  /* ---------------- KEY HANDLER ---------------- */
+const handleKeyDown = (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+
+    if (!responding && input.trim()) {
+      setHistory((prev) => [...prev, input]);
+      setHistoryIndex(-1);
+    }
+
+    runCommand(input);
+    setInput("");
+  }
+
+  if (e.key === "ArrowUp") {
+    e.preventDefault();
+    if (history.length) {
+      const idx =
+        historyIndex === -1
+          ? history.length - 1
+          : Math.max(0, historyIndex - 1);
+
+      setHistoryIndex(idx);
+      setInput(history[idx]);
+    }
+  }
+
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+
+    if (historyIndex >= 0) {
+      const idx = historyIndex + 1;
+
+      if (idx < history.length) {
+        setHistoryIndex(idx);
+        setInput(history[idx]);
+      } else {
+        setHistoryIndex(-1);
+        setInput("");
+      }
+    }
+  }
+};
 
   return (
     <>
       <style>{`
-        .contact-section {
-          padding: 20px 48px;
-          background: none;
-          text-align: center;
+        .terminal {
+          max-width: 820px;
+          margin: 60px auto;
+          border-radius: 10px;
+          overflow: hidden;
+          background: rgba(15, 17, 28, 0.9);
+          backdrop-filter: blur(20px);
+          box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+          border: 1px solid rgba(255,255,255,0.08);
         }
 
-        .contact-big-title {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(42px, 7vw, 96px);
-          font-weight: 900;
-          line-height: 1;
-          letter-spacing: -0.03em;
-          color: #c8cef5;
-          margin-bottom: 32px;
-        }
-
-        .contact-big-title em {
-          color: #A78BFA;
-          font-style: italic;
-        }
-
-        .contact-sub {
-          font-size: 14px;
-          color: #4A5580;
-          margin-bottom: 40px;
-          font-weight: 300;
-          max-width: 400px;
-          margin-left: auto;
-          margin-right: auto;
-          line-height: 1.8;
-        }
-
-        .option-pills {
-          display: flex;
-          justify-content: center;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin-bottom: 24px;
-        }
-
-        .option-pill {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 10px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #4A5580;
-          background: none;
-          border: 1px solid rgba(123,140,222,0.15);
-          padding: 7px 18px;
-          cursor: pointer;
-          transition: color 0.2s, border-color 0.2s, background 0.2s;
-        }
-
-        .option-pill:hover {
-          color: #c8cef5;
-          border-color: rgba(123,140,222,0.5);
-          background: rgba(123,140,222,0.06);
-        }
-
-        .terminal-wrap {
-          max-width: 760px;
-          margin: 0 auto 64px;
-          text-align: left;
-          border: 1px solid rgba(123,140,222,0.18);
-          background: #0a0b18;
-          box-shadow: 0 0 60px rgba(123,140,222,0.07);
-        }
-
-        .terminal-titlebar {
+        .titlebar {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 10px 16px;
-          background: #13152a;
-          border-bottom: 1px solid rgba(123,140,222,0.12);
-          user-select: none;
+          padding: 10px 14px;
+          background: rgba(30,30,40,0.8);
         }
 
-        .terminal-dot {
-          width: 11px;
-          height: 11px;
+        .dot {
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
+          margin-right: 8px;
         }
 
-        .terminal-title {
-          margin-left: 8px;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 11px;
-          color: #4A5580;
-          letter-spacing: 0.08em;
-        }
-
-        .terminal-body {
-          padding: 20px 24px;
-          height: 380px;
+        .body {
+          height: 420px;
           overflow-y: auto;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 12.5px;
-          line-height: 1.75;
-          scrollbar-width: thin;
-          scrollbar-color: rgba(123,140,222,0.2) transparent;
+          padding: 16px;
+          font-family: Menlo, Monaco, monospace;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #e5e7eb;
         }
 
-        .terminal-body::-webkit-scrollbar { width: 4px; }
-        .terminal-body::-webkit-scrollbar-thumb {
-          background: rgba(123,140,222,0.2);
-          border-radius: 2px;
-        }
+        .line-system { color: #9ca3af; }
+        .line-input  { color: #a78bfa; }
+        .line-output { color: #e5e7eb; }
 
-        .line-system { color: #6b7280; }
-        .line-input  { color: #A78BFA; }
-        .line-output { color: #c8cef5; }
-        .line-error  { color: #f87171; }
-
-        .terminal-input-row {
+        .input-row {
           display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 24px;
-          border-top: 1px solid rgba(123,140,222,0.1);
-          background: #080916;
-          cursor: text;
+          padding: 12px 16px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+          font-family: Menlo, monospace;
         }
 
-        .terminal-prompt {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 12.5px;
-          color: #A78BFA;
-          white-space: nowrap;
-          flex-shrink: 0;
-          user-select: none;
+        .prompt {
+          color: #34d399;
+          margin-right: 6px;
         }
 
-        .terminal-input-field {
+        input {
           flex: 1;
           background: transparent;
           border: none;
           outline: none;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 12.5px;
-          color: #f0ede8;
-          caret-color: #A78BFA;
-          padding: 0;
-          margin: 0;
-          width: 100%;
+          color: white;
+          font-family: inherit;
         }
 
-        .terminal-input-field::placeholder {
-          color: #2a2d4a;
-        }
-
-        .terminal-input-field:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
-
-        .cursor-blink {
+        .cursor {
           display: inline-block;
-          width: 7px;
+          width: 6px;
           height: 14px;
-          background: #A78BFA;
+          background: #fff;
           margin-left: 2px;
-          vertical-align: middle;
-          animation: blink 1s step-end infinite;
-        }
-
-        .contact-divider {
-          width: 1px;
-          height: 60px;
-          background: linear-gradient(to bottom, transparent, rgba(123,140,222,0.2), transparent);
-          margin: 32px auto 0;
+          animation: blink 1s infinite;
         }
 
         @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50%       { opacity: 0; }
-        }
-
-        @media (max-width: 768px) {
-          .contact-section { padding: 80px 20px; }
-          .terminal-body { height: 300px; font-size: 11px; padding: 14px 16px; }
-          .terminal-input-row { padding: 10px 16px; }
-          .terminal-prompt { font-size: 11px; }
-          .terminal-input-field { font-size: 11px; }
+          50% { opacity: 0; }
         }
       `}</style>
 
-      <section className="contact-section" id="contact" ref={sectionRef}>
-        <div
-          className="section-label reveal"
-          data-num="04"
-          style={{ justifyContent: "center" }}
-        >
-          Let&apos;s Connect
+      <div className="terminal" onClick={() => inputRef.current?.focus()}>
+        {/* macOS bar */}
+        <div className="titlebar">
+          <div className="dot" style={{ background: "#ff5f57" }} />
+          <div className="dot" style={{ background: "#febc2e" }} />
+          <div className="dot" style={{ background: "#28c840" }} />
         </div>
 
-        <h2 className="contact-big-title reveal">
-          Know More<br />
-          About <em>Me.</em>
-        </h2>
-
-        <p className="contact-sub reveal">
-          Type a number in the terminal below to explore my portfolio.
-        </p>
-
-        {/* Quick-pick pills */}
-        <div className="option-pills reveal">
-          {MENU_OPTIONS.map((opt) => (
-            <button
-              key={opt.key}
-              className="option-pill"
-              onClick={() => handlePillClick(opt.key)}
-            >
-              [{opt.key}] {opt.label}
-            </button>
+        {/* body */}
+        <div className="body" ref={terminalRef}>
+          {lines.map((line, i) => (
+            <div key={i} className={`line-${line.type}`}>
+              {line.text || "\u00A0"}
+            </div>
           ))}
+          {booted && !responding && <span className="cursor" />}
         </div>
 
-        {/* Terminal */}
-        <div
-          className="terminal-wrap reveal"
-          onClick={() => inputRef.current?.focus()}
-        >
-          {/* Title bar */}
-          <div className="terminal-titlebar">
-            <span className="terminal-dot" style={{ background: "#ff5f57" }} />
-            <span className="terminal-dot" style={{ background: "#febc2e" }} />
-            <span className="terminal-dot" style={{ background: "#28c840" }} />
-            <span className="terminal-title">Command Prompt — portfolio.exe</span>
-          </div>
-
-          {/* Output body */}
-          <div className="terminal-body" ref={terminalRef}>
-            {lines.map((line, i) => (
-              <div key={i} className={`line-${line.type}`}>
-                {line.text || "\u00A0"}
-              </div>
-            ))}
-            {booted && !responding && (
-              <span className="cursor-blink" />
-            )}
-          </div>
-
-          {/* Input row */}
-          <div className="terminal-input-row">
-            <span className="terminal-prompt">C:\Users\Visitor&gt;</span>
-            <input
-              ref={inputRef}
-              className="terminal-input-field"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={booted ? "type 1, 2, 3 or 4 and press Enter" : "booting..."}
-              disabled={!booted || responding}
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="off"
-              spellCheck={false}
-            />
-          </div>
+        {/* input */}
+        <div className="input-row">
+          <span className="prompt">visitor@portfolio ~ %</span>
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            disabled={!booted || responding}
+            autoFocus
+          />
         </div>
-
-        <div className="contact-divider" />
-      </section>
+      </div>
     </>
   );
 }
