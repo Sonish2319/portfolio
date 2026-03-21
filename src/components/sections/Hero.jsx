@@ -266,7 +266,7 @@ export default function Hero() {
                 color: "transparent",
               }}
             >
-              Upadhyaya
+              Upadhyaya to check if CI/CD is implemented correctly
             </span>
           </div>
           <div className={`transition-opacity duration-300 absolute top-0 left-0 ${hovered ? 'opacity-100' : 'opacity-0'}`}>
