@@ -7,8 +7,8 @@ export async function POST(req) {
   try {
     const { from, subject, message } = await req.json();
 
-    console.log("Incoming mail:", { from, subject, message });
 
+    //gmail configuration
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -17,6 +17,9 @@ export async function POST(req) {
       },
     });
 
+
+    //send mail functionality
+    
     const info = await transporter.sendMail({
       from: `"Portfolio CLI" <${GOOGLE_APP_USER}>`,
       to: GOOGLE_APP_USER, 
