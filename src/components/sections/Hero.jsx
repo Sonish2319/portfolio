@@ -266,7 +266,7 @@ export default function Hero() {
                 color: "transparent",
               }}
             >
-              Upadhyaya to check if CI/CD is implemented correctly
+              Upadhyaya
             </span>
           </div>
           <div className={`transition-opacity duration-300 absolute top-0 left-0 ${hovered ? 'opacity-100' : 'opacity-0'}`}>
@@ -298,8 +298,8 @@ export default function Hero() {
           }}
         >
           
-            <a href="/cv/sonishreport.pdf"
-            download="sonishreport.pdf"
+            <a href="/cv/Sonish-Upadhyaya-cv.pdf"
+            download="Sonish-Upadhyaya-cv.pdf"
             className="group relative overflow-hidden"
             style={{
               display: "inline-flex",
