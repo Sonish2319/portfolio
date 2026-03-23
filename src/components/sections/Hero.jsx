@@ -200,16 +200,10 @@ export default function Hero() {
             />
             <div
               className="relative rounded-full overflow-hidden border-2 border-[#7B8CDE]/30"
-              style={{ width: 180, height: 180 }}
+              style={{ width: "100%", maxWidth: 180, aspectRatio: "1 / 1" }}
             >
               <div className="absolute inset-0 bg-[#0d0e1a]" />
-              <Image
-                src="/screenshot (5).png"
-                alt="Sonish Upadhyaya"
-                fill
-                style={{ objectFit: "cover", filter: "brightness(0.88) saturate(0.85) hue-rotate(5deg)" }}
-                priority
-              />
+              <RippleImage />
               <div
                 className="absolute inset-0 rounded-full"
                 style={{ background: "radial-gradient(circle, transparent 50%, rgba(8,9,24,0.7) 100%)" }}

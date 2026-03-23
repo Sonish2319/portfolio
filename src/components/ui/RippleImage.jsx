@@ -7,8 +7,16 @@ export default function RippleImage() {
   const mountRef = useRef(null);
 
   useEffect(() => {
-    const width = 340;
-    const height = 340;
+    // Responsive sizing: adapt to mobile/desktop
+    const getCanvasSize = () => {
+      const containerWidth = window.innerWidth;
+      // Mobile: up to 280px, Desktop: 340px
+      return containerWidth < 768 ? 280 : 340;
+    };
+
+    const size = getCanvasSize();
+    const width = size;
+    const height = size;
 
     const scene = new THREE.Scene();
 
@@ -140,8 +148,9 @@ export default function RippleImage() {
     <div
       ref={mountRef}
       style={{
-        width: 340,
-        height: 340,
+        width: "100%",
+        maxWidth: 340,
+        aspectRatio: "1 / 1",
         borderRadius: "50%",
         overflow: "hidden",
         border: "2px solid rgba(123,140,222,0.3)",
