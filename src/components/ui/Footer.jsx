@@ -1,6 +1,10 @@
 "use client"
 export default function Footer() {
-  const socials = ["GitHub", "LinkedIn", "Twitter", "Email"];
+  const socials = [
+    { name: "GitHub", url: "https://github.com/Sonish2319" },
+    { name: "LinkedIn", url: "https://linkedin.com/in/sonish-upadhyaya646" },
+    { name: "Email", url: "mailto:sonish2319@gmail.com" },
+  ];
 
   return (
     <footer
@@ -27,8 +31,10 @@ export default function Footer() {
       <div style={{ display: "flex", gap: 24 }}>
         {socials.map((s) => (
           <a
-            key={s}
-            href="#"
+            key={s.name}
+            href={s.url}
+            target={s.name === "Email" ? undefined : "_blank"}
+            rel={s.name === "Email" ? undefined : "noopener noreferrer"}
             style={{
               fontFamily: "'JetBrains Mono', monospace",
               fontSize: 10,
@@ -41,7 +47,7 @@ export default function Footer() {
             onMouseEnter={e => (e.currentTarget.style.color = "#F6821F")}
             onMouseLeave={e => (e.currentTarget.style.color = "#707070")}
           >
-            {s}
+            {s.name}
           </a>
         ))}
       </div>

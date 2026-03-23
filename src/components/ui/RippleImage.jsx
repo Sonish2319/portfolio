@@ -31,11 +31,11 @@ export default function RippleImage() {
 
     const loader = new THREE.TextureLoader();
 
-    const texture1 = loader.load("/myimage2.png");
+    const texture1 = loader.load("/dark.png");
     texture1.minFilter = THREE.LinearFilter;
     texture1.magFilter = THREE.LinearFilter;
 
-    const texture2 = loader.load("/myimage.png");
+    const texture2 = loader.load("/cosmos.png");
     texture2.minFilter = THREE.LinearFilter;
     texture2.magFilter = THREE.LinearFilter;
 
