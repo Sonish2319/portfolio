@@ -1,6 +1,7 @@
 "use client";
-import { FaLaptopCode, FaPaintBrush, FaDatabase } from "react-icons/fa";
+import { FaLaptopCode, FaPaintBrush, FaDatabase, FaServer } from "react-icons/fa";
 import { IoMdSettings } from "react-icons/io";
+import { MdWork } from "react-icons/md";
 import { useEffect, useRef } from "react";
 
 const style = `
@@ -261,40 +262,49 @@ const style = `
 const steps = [
   {
     side: "left",
-    year: "2020 — 2021",
-    icon: <FaLaptopCode/>,
-    title: "First Line of Code",
-    body: "Started my journey into web development by learning HTML and CSS.",
-    tags: ["HTML", "CSS", "Web Basics"],
-    skills: ["HTML5", "CSS3", "Flexbox", "Responsive Design"],
+    year: "2021 — 2022",
+    icon: <FaLaptopCode />,
+    title: "The Beginning",
+    body: "Started my CS degree at Asian College of Higher Studies and dove into fundamentals — building early projects with Node.js, EJS, and SQLite. Shipped Lekhapadi, a collaborative blogging platform, as my first real team project.",
+    tags: ["Node.js", "EJS", "SQLite"],
+    skills: ["HTML5", "CSS3", "JavaScript", "Node.js", "Git"],
   },
   {
     side: "right",
-    year: "2021 — 2022",
-    icon: <FaPaintBrush/>,
-    title: "Frontend Developer",
-    body: "Moved into JavaScript and React building interactive UIs.",
-    tags: ["JavaScript", "React", "Frontend"],
-    skills: ["JavaScript", "React", "Tailwind CSS", "UI Design"],
+    year: "2022 — 2024",
+    icon: <FaPaintBrush />,
+    title: "Frontend & First Frameworks",
+    body: "Expanded into React and built a suite of projects — a dynamic form builder, tic-tac-toe, a to-do CRUD app, and a real-time weather app. Also explored Python with a Pygame space game, sharpening problem-solving fundamentals.",
+    tags: ["React", "Tailwind CSS", "Python"],
+    skills: ["React", "Tailwind CSS", "Pygame", "REST APIs", "Responsive Design"],
   },
   {
     side: "left",
-    year: "2022 — 2024",
-    icon: <IoMdSettings/>,
-    title: "Backend Developer",
-    body: "Learned backend with Django and Laravel.",
-    tags: ["Backend", "APIs", "Databases"],
-    skills: ["Django", "Laravel", "PostgreSQL", "REST APIs"],
+    year: "2024 — 2025",
+    icon: <IoMdSettings />,
+    title: "Backend Foundations",
+    body: "Went deep on backend architecture — mastering Laravel, Django, and RESTful API design. Learned Redis caching, queue systems, JWT auth, RBAC, and multi-tenancy patterns while building production-grade systems.",
+    tags: ["Django", "Laravel", "Redis", "MySQL"],
+    skills: ["Laravel", "Django", "PostgreSQL", "Redis", "JWT", "Docker"],
   },
   {
     side: "right",
-    year: "2024 — Now",
+    year: "Feb 2025 — May 2025",
+    icon: <MdWork />,
+    title: "Intern Full-Stack Developer",
+    body: "Joined Endeavor Nepal and built OM Network — a full-stack web app using Laravel 12 and React 19. Applied the Controller–Service–Repository pattern, implemented CSRF-protected APIs, and integrated a real-time AI chatbot via external API.",
+    tags: ["Laravel 12", "React 19", "MySQL"],
+    skills: ["Laravel", "React", "RESTful APIs", "CSRF", "CMS", "CSR Pattern"],
+  },
+  {
+    side: "left",
+    year: "Jun 2025 — Present",
     badge: "Current",
-    icon: <FaDatabase/>,
-    title: "Full-Stack Developer",
-    body: "Building full-stack apps and exploring Three.js.",
-    tags: ["Full-Stack", "Three.js", "Creative Web"],
-    skills: ["Three.js", "React Three Fiber", "WebGL", "Framer Motion"],
+    icon: <FaServer />,
+    title: "Associate Full-Stack Developer",
+    body: "Promoted to Associate Developer, now leading backend architecture for two government projects — TSC (Teacher Service Council, 100K+ users) and NARC (60+ subdomains). Working with Next.js, Django, and Laravel at scale, with Celery, Redis, Nginx, and CI/CD pipelines.",
+    tags: ["Next.js", "Django", "Government Scale"],
+    skills: ["Next.js", "Django REST", "Celery", "Redis", "RBAC", "CI/CD", "Nginx"],
   },
 ];
 

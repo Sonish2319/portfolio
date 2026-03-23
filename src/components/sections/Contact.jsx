@@ -263,15 +263,11 @@ export default function Contact() {
   const [mailStep, setMailStep] = useState(0);
   const [tabMatches, setTabMatches] = useState([]);
 
-  /* ---------------- ALWAYS FOCUS INPUT ---------------- */
+  /* ---------------- FOCUS INPUT ONLY WHEN USER INTERACTS ---------------- */
   useEffect(() => {
-    const onBlur = () => {
-      setTimeout(() => inputRef.current?.focus(), 0);
-    };
-    const inputEl = inputRef.current;
-    inputEl?.addEventListener("blur", onBlur);
-    inputEl?.focus();
-    return () => inputEl?.removeEventListener("blur", onBlur);
+    // Prevent an immediate focus jump on initial page load.
+    // Users can click the terminal area to focus input.
+    return () => {};
   }, [booted]);
 
   /* ---------------- BOOT ---------------- */
@@ -629,8 +625,9 @@ export default function Contact() {
         }
       `}</style>
 
-      <div className="terminal" onClick={() => inputRef.current?.focus()} onMouseDown={(e) => { if (e.target !== inputRef.current) e.preventDefault(); inputRef.current?.focus(); }}>
-        {/* macOS bar */}
+      <section id="contact">
+        <div className="terminal" onClick={() => inputRef.current?.focus()} onMouseDown={(e) => { if (e.target !== inputRef.current) e.preventDefault(); inputRef.current?.focus(); }}>
+          {/* macOS bar */}
         <div className="titlebar">
           <div className="dot" style={{ background: "#ff5f57" }} />
           <div className="dot" style={{ background: "#febc2e" }} />
@@ -657,10 +654,10 @@ export default function Contact() {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={!booted || responding}
-            autoFocus
           />
         </div>
       </div>
+      </section>
     </>
   );
 }
