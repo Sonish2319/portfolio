@@ -7,18 +7,31 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Detect scroll
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
+
+  const handleHireMe = () => {
+    setMenuOpen(false);
+
+    // 1. Scroll to the contact section
+    const contactSection = document.getElementById("contact");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // 2. After scroll settles, dispatch custom event to trigger `contactme`
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("terminal:run", { detail: "contactme" }));
+    }, 700);
+  };
 
   return (
     <>
@@ -57,13 +70,7 @@ export default function Navbar() {
 
         {/* Desktop Links */}
         <ul
-          style={{
-            display: "flex",
-            gap: 40,
-            listStyle: "none",
-            margin: 0,
-            padding: 0,
-          }}
+          style={{ display: "flex", gap: 40, listStyle: "none", margin: 0, padding: 0 }}
           className="desktop-links"
         >
           {links.map((link) => (
@@ -90,7 +97,8 @@ export default function Navbar() {
 
         {/* Desktop Hire Me */}
         <button
-          className="desktop-hire"
+          className="desktop-hire hire-btn"
+          onClick={handleHireMe}
           style={{
             fontFamily: "'JetBrains Mono', monospace",
             fontSize: 11,
@@ -102,20 +110,24 @@ export default function Navbar() {
             padding: "10px 22px",
             cursor: "pointer",
             transition: "all 0.2s",
+            position: "relative",
+            overflow: "hidden",
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.background = "#9270f0";
             e.currentTarget.style.transform = "translateY(-1px)";
+            e.currentTarget.style.boxShadow = "0 4px 20px rgba(167,139,250,0.4)";
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.background = "#A78BFA";
             e.currentTarget.style.transform = "translateY(0)";
+            e.currentTarget.style.boxShadow = "none";
           }}
         >
           Hire Me
         </button>
 
-        {/* Hamburger Menu (Mobile Only) */}
+        {/* Hamburger Menu */}
         <button
           className="hamburger"
           onClick={() => setMenuOpen((prev) => !prev)}
@@ -132,36 +144,9 @@ export default function Navbar() {
             zIndex: 110,
           }}
         >
-          <span
-            style={{
-              display: "block",
-              height: 2,
-              background: "#f0ede8",
-              borderRadius: 1,
-              transition: "all 0.3s",
-              transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none",
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              height: 2,
-              background: "#f0ede8",
-              borderRadius: 1,
-              opacity: menuOpen ? 0 : 1,
-              transition: "all 0.3s",
-            }}
-          />
-          <span
-            style={{
-              display: "block",
-              height: 2,
-              background: "#f0ede8",
-              borderRadius: 1,
-              transition: "all 0.3s",
-              transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none",
-            }}
-          />
+          <span style={{ display: "block", height: 2, background: "#f0ede8", borderRadius: 1, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none" }} />
+          <span style={{ display: "block", height: 2, background: "#f0ede8", borderRadius: 1, opacity: menuOpen ? 0 : 1, transition: "all 0.3s" }} />
+          <span style={{ display: "block", height: 2, background: "#f0ede8", borderRadius: 1, transition: "all 0.3s", transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none" }} />
         </button>
       </nav>
 
@@ -208,7 +193,7 @@ export default function Navbar() {
         ))}
 
         <button
-          onClick={() => setMenuOpen(false)}
+          onClick={handleHireMe}
           style={{
             marginTop: 16,
             fontFamily: "'JetBrains Mono', monospace",
@@ -229,7 +214,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Responsive CSS */}
       <style>{`
         @media (max-width: 768px) {
           .desktop-links { display: none !important; }
