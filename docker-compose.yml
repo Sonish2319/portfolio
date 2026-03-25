@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  nextjs-app:
+    image: sonish2319/nextjs-portfolio:latest
+    container_name: nextjs_app
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
