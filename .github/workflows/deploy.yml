@@ -1,4 +1,4 @@
-name: Deploy Next.js with Docker
+name: Deploy Next.js to Kubernetes
 
 on:
   push:
@@ -7,44 +7,81 @@ on:
 
 jobs:
   build-and-deploy:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
 
+    env:
+      IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/nextjs-portfolio
+
     steps:
-      # 1. Checkout
-      - name: Checkout code
-        uses: actions/checkout@v3
 
-      # 2. Login to Docker Hub
+      # --------------------------------------------------
+      # 1. Checkout Source
+      # --------------------------------------------------
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # 2. Generate Short Commit SHA
+      # Example: a1b2c3d
+      # --------------------------------------------------
+      - name: Generate Image Tag
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      # --------------------------------------------------
+      # 3. Login Docker Hub
+      # --------------------------------------------------
       - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" \
+          | docker login \
+              -u "${{ secrets.DOCKER_USERNAME }}" \
+              --password-stdin
 
-      # 3. Build Docker image
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/nextjs-portfolio:latest .
+      # --------------------------------------------------
+      # 4. Build Docker Image
+      # --------------------------------------------------
+      - name: Build Docker Image
+        run: |
+          docker build \
+            -t $IMAGE_NAME:$IMAGE_TAG \
+            .
 
-      # 4. Push to Docker Hub
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/nextjs-portfolio:latest
+      # --------------------------------------------------
+      # 5. Push Docker Image
+      # --------------------------------------------------
+      - name: Push Docker Image
+        run: |
+          docker push $IMAGE_NAME:$IMAGE_TAG
 
-      # 5. Deploy on VPS
-      - name: Deploy to VPS
+      # --------------------------------------------------
+      # 6. Deploy to Kubernetes
+      # --------------------------------------------------
+      - name: Deploy to Kubernetes
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.PORT }}
+
           script: |
             set -e
 
-            echo "Pull latest image..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/nextjs-portfolio:latest
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/nextjs-portfolio:${{ env.IMAGE_TAG }}
 
-            echo "Restart container..."
-            cd /var/www/html/portfolio
+            echo "================================="
+            echo "Deploying Image:"
+            echo "$IMAGE"
+            echo "================================="
 
-            docker-compose down
-            docker-compose up -d
+            kubectl set image deployment/portfolio \
+              portfolio=$IMAGE \
+              -n portfolio
 
-            echo "Cleanup old images..."
-            docker image prune -f
+            kubectl rollout status deployment/portfolio \
+              -n portfolio
+
+            echo ""
+            echo "Deployment Successful!"
