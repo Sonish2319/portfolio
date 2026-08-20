@@ -337,7 +337,7 @@ export default function Hero() {
           style={{ marginTop: 32, animation: "fadeUp 0.9s 0.9s forwards" }}
         >
           <a
-            href="/cv/Sonish-Upadhyaya-cv.pdf"
+            href="/cv/Sonish_Upadhyaya_CV.pdf"
             download="Sonish-Upadhyaya-cv.pdf"
             className="group relative overflow-hidden"
             style={{
