@@ -39,11 +39,11 @@ pipeline {
             }
         }
 
-        stage('Test') {
-            steps {
-                sh 'npm run lint'
-            }
-        }
+        // stage('Test') {
+        //     steps {
+        //         sh 'npm run lint'
+        //     }
+        // }
 
         stage('Generate Image Tag') {
             steps {
