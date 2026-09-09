@@ -4,8 +4,9 @@ import {
   SiLaravel, SiDjango, SiNextdotjs, SiMysql,
   SiRedis, SiDocker, SiNginx, SiMongodb, SiCelery,
   SiTailwindcss, SiGithubactions, SiLinux, SiPhp,
+  SiKubernetes, SiOpenai
 } from "react-icons/si";
-import { TbBrandNodejs } from "react-icons/tb";
+import { TbBrandNodejs, TbBrain } from "react-icons/tb";
 import { MdSecurity } from "react-icons/md";
 
 /* ─────────────────────────────────────────────
@@ -27,8 +28,8 @@ const categories = [
     accent: "#FF2D20",
     skills: [
       { icon: SiDjango,      name: "Django / DRF", pct: 90, color: "#44B78B" },
-      { icon: SiLaravel,     name: "Laravel",      pct: 88, color: "#FF2D20" },
-      // { icon: SiPhp,         name: "PHP 8.2",      pct: 80, color: "#8892BF" },
+      { icon: SiLaravel,     name: "Laravel",      pct: 90, color: "#FF2D20" },
+      { icon: SiPhp,         name: "Livewire/Filament", pct: 85, color: "#FB7185" },
       { icon: TbBrandNodejs, name: "Node.js",      pct: 68, color: "#84CC16" },
     ],
   },
@@ -48,9 +49,18 @@ const categories = [
     accent: "#2496ED",
     skills: [
       { icon: SiDocker,        name: "Docker", pct: 78, color: "#2496ED" },
-      { icon: SiNginx,         name: "Nginx",          pct: 76, color: "#009900" },
-      { icon: SiGithubactions, name: "GitHub Actions", pct: 70, color: "#2088FF" },
+      { icon: SiKubernetes,    name: "Kubernetes", pct: 70, color: "#326CE5" },
+      { icon: SiGithubactions, name: "CI/CD & Jenkins", pct: 75, color: "#2088FF" },
       { icon: SiLinux,         name: "Linux Admin",    pct: 75, color: "#FCC624" },
+    ],
+  },
+  {
+    id: "ai",
+    label: "AI & LLM",
+    accent: "#10B981",
+    skills: [
+      { icon: TbBrain,     name: "MCP & RAG", pct: 85, color: "#10B981" },
+      { icon: SiOpenai,    name: "LLM Engineering", pct: 80, color: "#74AA9C" },
     ],
   },
   {
@@ -346,7 +356,7 @@ function SkillCard({ icon: Icon, name, level, pct, color, accent, delay }) {
 /* ─────────────────────────────────────────────
    CLUSTER
 ───────────────────────────────────────────── */
-const positions = ["left", "right", "left", "right", "centre"];
+const positions = ["left", "right", "left", "right", "left", "right"];
 
 function Cluster({ cat, pos, baseDelay }) {
   return (

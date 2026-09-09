@@ -348,8 +348,8 @@ export default function About() {
             </p>
             <p>
               Outside of work, I&apos;m deepening my expertise in{" "}
-              <strong>DevOps &amp; infrastructure</strong> — exploring Docker, CI/CD
-              pipelines, Nginx, and Linux administration to own the full deployment lifecycle.
+              <strong>AI/LLM engineering</strong> — exploring MCP, RAG, and local LLM integrations,
+              alongside <strong>DevOps &amp; Kubernetes</strong> to own the full deployment lifecycle.
             </p>
           </div>
 

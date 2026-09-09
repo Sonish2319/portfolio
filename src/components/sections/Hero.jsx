@@ -9,7 +9,7 @@ const JP_POOL = "あいうえおかきくけこさしすせそたちつてとな
 function useScramble(target, active) {
   const [display, setDisplay] = useState(target);
   const frameRef = useRef(null);
-  const iterRef  = useRef(0);
+  const iterRef = useRef(0);
 
   useEffect(() => {
     if (!active) {
@@ -46,7 +46,7 @@ function useScramble(target, active) {
 }
 
 export default function Hero() {
-  const [stars, setStars]   = useState([]);
+  const [stars, setStars] = useState([]);
   const [hovered, setHovered] = useState(false);
 
   const JP_TEXT = "だって\nばよ";
@@ -57,13 +57,13 @@ export default function Hero() {
 
   useEffect(() => {
     const generated = Array.from({ length: 30 }, () => ({
-      width:    Math.random() * 2 + 1,
-      height:   Math.random() * 2 + 1,
-      top:      `${Math.random() * 100}%`,
-      left:     `${Math.random() * 100}%`,
-      opacity:  Math.random() * 0.4 + 0.1,
+      width: Math.random() * 2 + 1,
+      height: Math.random() * 2 + 1,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      opacity: Math.random() * 0.4 + 0.1,
       duration: Math.random() * 3 + 2,
-      delay:    Math.random() * 3,
+      delay: Math.random() * 3,
     }));
     setStars(generated);
   }, []);
@@ -88,11 +88,11 @@ export default function Hero() {
               key={i}
               className="absolute rounded-full bg-white"
               style={{
-                width:           star.width,
-                height:          star.height,
-                top:             star.top,
-                left:            star.left,
-                opacity:         star.opacity,
+                width: star.width,
+                height: star.height,
+                top: star.top,
+                left: star.left,
+                opacity: star.opacity,
                 animation: `twinkle ${star.duration}s ease-in-out ${star.delay}s infinite`,
               }}
             />
@@ -271,7 +271,7 @@ export default function Hero() {
             <em style={{ fontStyle: "italic", color: "#A78BFA" }}>Sonish</em>
             <br />
             <span style={{ WebkitTextStroke: "1px rgba(123,140,222,0.3)", color: "transparent" }}>
-              Upadhyaya Hello
+              Upadhyaya
             </span>
           </span>
 
@@ -328,7 +328,7 @@ export default function Hero() {
           className="max-w-[540px] leading-[1.8] font-light text-[#6b7280] text-sm opacity-0"
           style={{ marginTop: 32, animation: "fadeUp 0.9s 0.7s forwards" }}
         >
-          I build immersive web experiences with Next.js and Django
+          I build scalable government platforms and immersive web experiences with Next.js, Laravel, and Django
         </p>
 
         {/* CTA */}

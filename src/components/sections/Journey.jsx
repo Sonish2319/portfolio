@@ -282,10 +282,10 @@ const steps = [
     side: "left",
     year: "2024 — 2025",
     icon: <IoMdSettings />,
-    title: "Backend Foundations",
-    body: "Went deep on backend architecture — mastering Laravel, Django, and RESTful API design. Learned Redis caching, queue systems, JWT auth, RBAC, and multi-tenancy patterns while building production-grade systems.",
-    tags: ["Django", "Laravel", "Redis", "MySQL"],
-    skills: ["Laravel", "Django", "PostgreSQL", "Redis", "JWT", "Docker"],
+    title: "Backend & AI Foundations",
+    body: "Mastered backend architecture with Laravel and Django. Learned Redis caching, queue systems, JWT auth, and multi-tenancy. Also dove into practical AI/LLM engineering by building local MCP chatbots and RAG pipelines.",
+    tags: ["Django", "Laravel", "LangChain", "MCP"],
+    skills: ["Laravel", "Django", "Python", "Redis", "RAG", "Docker"],
   },
   {
     side: "right",
@@ -302,9 +302,9 @@ const steps = [
     badge: "Current",
     icon: <FaServer />,
     title: "Associate Full-Stack Developer",
-    body: "Promoted to Associate Developer, now leading backend architecture for two government projects — TSC (Teacher Service Council, 100K+ users) and NARC (60+ subdomains). Working with Next.js, Django, and Laravel at scale, with Celery, Redis, Nginx, and CI/CD pipelines.",
-    tags: ["Next.js", "Django", "Government Scale"],
-    skills: ["Next.js", "Django REST", "Celery", "Redis", "RBAC", "CI/CD", "Nginx"],
+    body: "Leading backend architecture for major government projects — TSC (100K+ users), NARC (60+ subdomains), E-Pension, and NAS-API. Working with Next.js, Django, and Laravel at scale, focusing on security, caching, CI/CD, and asynchronous workflows.",
+    tags: ["Next.js", "Django", "Laravel 12", "Gov Tech"],
+    skills: ["Next.js", "Django REST", "Celery", "Redis", "Livewire", "CI/CD", "Kubernetes"],
   },
 ];
 
