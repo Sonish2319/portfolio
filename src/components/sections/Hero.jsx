@@ -271,7 +271,7 @@ export default function Hero() {
             <em style={{ fontStyle: "italic", color: "#A78BFA" }}>Sonish</em>
             <br />
             <span style={{ WebkitTextStroke: "1px rgba(123,140,222,0.3)", color: "transparent" }}>
-              Upadhyaya
+              Upadhyaya upadhyaya Jenkin pipeline testing
             </span>
           </span>
 
